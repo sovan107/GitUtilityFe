@@ -1,0 +1,152 @@
+.compare-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-top: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 20px;
+  text-align: center;
+}
+
+.error-message {
+  margin-bottom: 15px;
+}
+
+.compare-header {
+  margin-bottom: 30px;
+  border-bottom: 1px solid #e1e4e8;
+  padding-bottom: 15px;
+}
+
+.branch-info {
+  margin-bottom: 10px;
+}
+
+.branches {
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.base-branch, .compare-branch {
+  background-color: #f1f8ff;
+  border: 1px solid #c8e1ff;
+  border-radius: 3px;
+  padding: 3px 8px;
+}
+
+.repo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.repo-item {
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.repo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.repo-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #0366d6;
+}
+
+.repo-status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.repo-status.behind {
+  background-color: #ffeef0;
+  color: #cb2431;
+}
+
+.repo-status.ahead {
+  background-color: #e6ffed;
+  color: #22863a;
+}
+
+.repo-status.diverged {
+  background-color: #fff5b1;
+  color: #735c0f;
+}
+
+.repo-status.identical {
+  background-color: #f1f8ff;
+  color: #0366d6;
+}
+
+.stats-container {
+  display: flex;
+  gap: 20px;
+  background-color: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-label {
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 16px;
+}
+
+@media (max-width: 600px) {
+  .stats-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
