@@ -10,10 +10,11 @@ const CompareView = () => {
     const fetchCompareData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/github/repos/develop/release-uat');
+        // Use the local JSON file instead of making an API call
+        const response = await fetch('/data/compare-data.json');
         
         if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
+          throw new Error(`Failed to load data with status ${response.status}`);
         }
         
         const data = await response.json();

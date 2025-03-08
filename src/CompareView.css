@@ -1,5 +1,6 @@
 .compare-container {
-  max-width: 900px;
+  width: 80%;
+  max-width: 80%;
   margin: 0 auto;
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -66,10 +67,12 @@
   padding: 3px 8px;
 }
 
+/* Updated to display cards in a grid with width 80% */
 .repo-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  width: 100%;
 }
 
 .repo-item {
@@ -78,6 +81,9 @@
   padding: 15px;
   background-color: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  /* Setting height to make all cards the same height */
+  display: flex;
+  flex-direction: column;
 }
 
 .repo-header {
@@ -123,17 +129,19 @@
 
 .stats-container {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 10px;
   background-color: #f6f8fa;
   border: 1px solid #e1e4e8;
   border-radius: 6px;
   padding: 15px;
+  margin-top: auto;
 }
 
 .stat-item {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 5px;
 }
 
 .stat-label {
@@ -144,9 +152,15 @@
   font-size: 16px;
 }
 
+/* Responsive design for different screen sizes */
+@media (max-width: 900px) {
+  .repo-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 600px) {
-  .stats-container {
-    flex-direction: column;
-    gap: 10px;
+  .repo-list {
+    grid-template-columns: 1fr;
   }
 }
