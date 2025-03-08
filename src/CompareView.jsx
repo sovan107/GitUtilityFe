@@ -72,7 +72,7 @@ const CompareView = () => {
           {Object.entries(compareData).map(([repoName, repoData]) => (
             <div key={repoName} className="repo-item">
               <div className="repo-header">
-                <h3 className="repo-name">{repoName}</h3>
+                <h3 className="repo-name"><a href={repoData.html_url} target="_blank" rel="noopener noreferrer">{repoName}</a></h3>
                 <div className={`repo-status ${repoData.status}`}>
                   {repoData.status.charAt(0).toUpperCase() + repoData.status.slice(1)}
                 </div>
