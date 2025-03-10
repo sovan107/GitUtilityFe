@@ -128,6 +128,7 @@ const PRComponent = () => {
               <th>Base (to)</th>
               <th>Created</th>
               <th>Updated</th>
+              <th>Author</th>
               <th>Link</th>
             </tr>
           </thead>
@@ -143,6 +144,7 @@ const PRComponent = () => {
                     <td>{pr?.base?.ref}</td>
                     <td>{new Date(pr?.created_at).toLocaleString()}</td>
                     <td>{new Date(pr?.updated_at).toLocaleString()}</td>
+                    <td>{pr?.user?.login}</td>
                     <td>
                       <a href={pr?.html_url} target="_blank" rel="noopener noreferrer">
                         View Repo
@@ -153,7 +155,7 @@ const PRComponent = () => {
           
             ) : (
               <tr>
-                <td colSpan="9">No data available</td>
+                <td colSpan="10">No data available</td>
               </tr>
             )}
           </tbody>
