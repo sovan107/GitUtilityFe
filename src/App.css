@@ -39,3 +39,23 @@ footer {
   border-top: 1px solid #e1e4e8;
   width: 100%;
 }
+
+/* Nav Styles */
+
+.navbar{
+  background: '#333';
+  padding: '10px';
+  width: 100%;
+}
+
+.navbar ul {
+  list-style-type: none; /* Example of styling */
+  padding: 0;
+  margin: 0;
+  display: flex;
+  background-color: #333;
+}
+
+.navbar ul li {
+  margin-right: 20px; /* Example styling for list items */
+}
