@@ -1,0 +1,198 @@
+#!/bin/bash
+
+# =======================================================
+# OpenShift Login Script
+# =======================================================
+#
+# Description:
+#   This script helps you obtain an authentication token from OpenShift
+#   and log in using that token. It securely handles credentials and
+#   provides error handling.
+#
+# Usage:
+#   ./ocp-login.sh [options]
+#
+# Options:
+#   -h, --help           Display this help message
+#   -s, --server URL     Specify OpenShift server URL
+#   -u, --username USER  Specify OpenShift username
+#   -t, --token TOKEN    Use existing token instead of generating a new one
+#   -p, --project NAME   Switch to specific project after login
+#   -k, --insecure       Allow insecure connections (skip SSL verification)
+#
+# Examples:
+#   ./ocp-login.sh
+#   ./ocp-login.sh --server https://api.your-cluster.example.com:6443
+#   ./ocp-login.sh -t sha256~your-existing-token
+#   ./ocp-login.sh -u developer -p myproject
+#
+# =======================================================
+
+set -e
+
+# Default values
+SERVER_URL=https://api.rm1.0a51.p1.openshiftapps.com:6443
+USERNAME=sovan.misra
+TOKEN=""
+SAVE_TOKEN=false
+PROJECT=sovan-misra-dev
+INSECURE=""
+TOKEN_FILE="${HOME}/.ocp-token"
+
+# Function to display usage information
+show_help() {
+  grep "^#" "$0" | grep -v "!/bin/bash" | sed 's/^# //g' | sed 's/^#//g'
+  exit 0
+}
+
+# Function to handle errors
+handle_error() {
+  echo "ERROR: $1" >&2
+  exit 1
+}
+
+# Function to check if oc client is installed
+check_oc_installed() {
+  if ! command -v oc &> /dev/null; then
+    handle_error "OpenShift CLI (oc) is not installed. Please install it first."
+  fi
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      show_help
+      ;;
+    -s|--server)
+      SERVER_URL="$2"
+      shift 2
+      ;;
+    -u|--username)
+      USERNAME="$2"
+      shift 2
+      ;;
+    -t|--token)
+      TOKEN="$2"
+      shift 2
+      ;;
+    -p|--project)
+      PROJECT="$2"
+      shift 2
+      ;;
+    -k|--insecure)
+      INSECURE="--insecure-skip-tls-verify"
+      shift
+      ;;
+    *)
+      handle_error "Unknown option: $1"
+      ;;
+  esac
+done
+
+# Check if oc client is installed
+check_oc_installed
+
+# Get server URL if not provided
+if [[ -z "$SERVER_URL" ]]; then
+  echo -n "Enter OpenShift server URL (e.g., https://api.cluster.example.com:6443): "
+  read -r SERVER_URL
+  [[ -z "$SERVER_URL" ]] && handle_error "Server URL is required."
+fi
+
+# Process based on whether token is provided
+if [[ -z "$TOKEN" ]]; then
+  # No token provided, need to get it
+
+  # Ask for username if not provided
+  if [[ -z "$USERNAME" ]]; then
+    echo -n "Enter your OpenShift username: "
+    read -r USERNAME
+    [[ -z "$USERNAME" ]] && handle_error "Username is required."
+  fi
+
+  # Ask for password (without echoing to terminal)
+  echo -n "Enter your OpenShift password: "
+  read -rs PASSWORD
+  echo
+  [[ -z "$PASSWORD" ]] && handle_error "Password is required."
+
+  echo "Authenticating to OpenShift and retrieving token..."
+  
+  # Login with username/password to get token
+  TOKEN=$(oc login $INSECURE "$SERVER_URL" -u "$USERNAME" -p "$PASSWORD" --output json | jq -r '.token // ""' 2>/dev/null)
+  
+  # If jq command failed or token is empty, try alternative method
+  if [[ -z "$TOKEN" ]]; then
+    # Log in first
+    if ! oc login $INSECURE "$SERVER_URL" -u "$USERNAME" -p "$PASSWORD" > /dev/null; then
+      handle_error "Failed to authenticate with the provided credentials."
+    fi
+    
+    # Then extract token
+    TOKEN=$(oc whoami -t)
+    if [[ -z "$TOKEN" ]]; then
+      handle_error "Failed to retrieve authentication token."
+    fi
+  fi
+  
+  # Clear password variable for security
+  unset PASSWORD
+  
+  echo "Token successfully retrieved."
+  
+  # Ask if user wants to save token
+  echo -n "Do you want to save this token for future use? (y/n): "
+  read -r SAVE_CHOICE
+  if [[ "$SAVE_CHOICE" == [Yy]* ]]; then
+    SAVE_TOKEN=true
+  fi
+  
+else
+  echo "Using provided token for authentication..."
+fi
+
+# Login using token
+echo "Logging in to OpenShift using token..."
+if ! oc login $INSECURE "$SERVER_URL" --token="$TOKEN"; then
+  handle_error "Failed to log in with the token."
+fi
+
+# Save token if requested
+if [[ "$SAVE_TOKEN" == true ]]; then
+  # Create token file with restricted permissions
+  echo "$TOKEN" > "$TOKEN_FILE"
+  chmod 600 "$TOKEN_FILE"
+  echo "Token saved to $TOKEN_FILE"
+fi
+
+# Switch to specified project if provided
+if [[ -n "$PROJECT" ]]; then
+  echo "Switching to project $PROJECT..."
+  if ! oc project "$PROJECT"; then
+    echo "WARNING: Could not switch to project $PROJECT. It may not exist or you may not have access."
+  fi
+fi
+
+# Display successful login message
+echo "============================================="
+echo "Successfully logged in to OpenShift!"
+echo "Current user: $(oc whoami)"
+echo "Current project: $(oc project -q)"
+echo "============================================="
+
+# Display token information
+if [[ "$SAVE_TOKEN" == true ]]; then
+  echo "To log in again using this token, run:"
+  echo "oc login $SERVER_URL --token=\"\$(cat $TOKEN_FILE)\""
+  echo "or use:"
+  echo "./ocp-login.sh -s $SERVER_URL -t \"\$(cat $TOKEN_FILE)\""
+else
+  echo "Your authentication token is:"
+  echo "$TOKEN"
+  echo
+  echo "To log in again using this token, run:"
+  echo "oc login $SERVER_URL --token=\"$TOKEN\""
+fi
+
+exit 0
